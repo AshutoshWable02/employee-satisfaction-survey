@@ -1,11 +1,9 @@
 package com.survey.backend.model;
 
 import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 public class SurveyForm {
@@ -15,18 +13,14 @@ public class SurveyForm {
     private Long id;
 
     private String title;
-
     private String description;
+    private String department;
 
-    private String department; // Optional: For department-wise survey
-
-    @OneToMany(mappedBy = "surveyForm", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<Question> questions = new ArrayList<>();  // Initialize list
-
-    // Declare emails field
     @ElementCollection
-    private List<String> emails = new ArrayList<>();  // Initialize list
+    private List<String> emails;
+
+    @OneToMany(mappedBy = "surveyForm", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<Question> questions = new ArrayList<>(); // Initialize to avoid NullPointerException
 
     // Getters and setters
     public Long getId() {
@@ -61,14 +55,6 @@ public class SurveyForm {
         this.department = department;
     }
 
-    public List<Question> getQuestions() {
-        return questions;
-    }
-
-    public void setQuestions(List<Question> questions) {
-        this.questions = questions;
-    }
-
     public List<String> getEmails() {
         return emails;
     }
@@ -77,14 +63,11 @@ public class SurveyForm {
         this.emails = emails;
     }
 
-    // Helper methods to manage the list of questions
-    public void addQuestion(Question question) {
-        questions.add(question);
-        question.setSurveyForm(this);  // Ensure bidirectional relationship
+    public List<Question> getQuestions() {
+        return questions;
     }
 
-    public void removeQuestion(Question question) {
-        questions.remove(question);
-        question.setSurveyForm(null);  // Ensure bidirectional relationship
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
     }
 }

@@ -1,4 +1,4 @@
-package main.java.com.survey.backend.repository;
+package com.survey.backend.repository;
 
 import com.survey.backend.model.Question;
 

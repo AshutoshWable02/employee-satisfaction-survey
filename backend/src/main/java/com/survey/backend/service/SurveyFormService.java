@@ -1,9 +1,10 @@
 package com.survey.backend.service;
 
-import main.java.com.survey.backend.dto.*;
-//import com.survey.backend.dto.QuestionRequest;
-import main.java.com.survey.backend.model.Question;
-import main.java.com.survey.backend.model.SurveyForm;
+import com.survey.backend.dto.CreateSurveyRequest;
+import com.survey.backend.dto.QuestionRequest;
+import com.survey.backend.model.Question;
+import com.survey.backend.model.SurveyForm;
+import com.survey.backend.model.QuestionType;
 import com.survey.backend.repository.SurveyFormRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,10 +37,10 @@ public class SurveyFormService {
         for (QuestionRequest questionRequest : request.getQuestions()) {
             Question question = new Question();
             question.setText(questionRequest.getText());
-            question.setType(questionRequest.getType());
+            question.setType(QuestionType.valueOf(questionRequest.getType().toUpperCase()));
 
             // Only set options if it's an MCQ
-            if (questionRequest.getType().toString().equals("MCQ")) {
+            if (questionRequest.getType().equals("MCQ")) {
                 question.setOptions(questionRequest.getOptions());
             }
 
@@ -61,13 +62,12 @@ public class SurveyFormService {
         existing.setDescription(updatedForm.getDescription());
         existing.setDepartment(updatedForm.getDepartment());
 
-        // Update only questions, keep existing questions intact if not updated
-        List<Question> updatedQuestions = updatedForm.getQuestions();
-        if (updatedQuestions != null && !updatedQuestions.isEmpty()) {
-            existing.getQuestions().clear();  // Clear existing questions
-
-            updatedQuestions.forEach(q -> {
-                q.setSurveyForm(existing);
+        // Update questions only if present
+        if (updatedForm.getQuestions() != null && !updatedForm.getQuestions().isEmpty()) {
+            // Clear existing questions, add new ones
+            existing.getQuestions().clear();
+            updatedForm.getQuestions().forEach(q -> {
+                q.setSurveyForm(existing); // Set the parent relation
                 existing.getQuestions().add(q);
             });
         }
@@ -75,8 +75,22 @@ public class SurveyFormService {
         return repository.save(existing);
     }
 
+    // Fetch a single survey form by ID
     public SurveyForm getSurvey(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Survey not found with id: " + id));
+    }
+
+    // Delete a survey by ID
+    @Transactional
+    public void deleteSurvey(Long id) {
+        SurveyForm surveyForm = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Survey not found with id: " + id));
+
+        // Optionally, you can also delete questions associated with the survey
+        // if cascade delete is not configured in the relationship.
+        // If cascade delete is enabled, the associated questions will be deleted automatically.
+
+        repository.delete(surveyForm);
     }
 }

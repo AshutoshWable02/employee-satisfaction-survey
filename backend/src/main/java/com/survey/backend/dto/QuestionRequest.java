@@ -1,14 +1,14 @@
-package main.java.com.survey.backend.dto;
+package com.survey.backend.dto;
 
-import com.survey.backend.model.QuestionType;
 import java.util.List;
 
 public class QuestionRequest {
     private String text;
-    private QuestionType type;
-    private List<String> options; // optional for TEXT and RATING
+    private String type;  // Ensure this matches the QuestionType Enum
+    private List<String> options;
 
-    // Getters and Setters
+    public QuestionRequest() {} 
+    // Getters and setters
     public String getText() {
         return text;
     }
@@ -17,11 +17,11 @@ public class QuestionRequest {
         this.text = text;
     }
 
-    public QuestionType getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(QuestionType type) {
+    public void setType(String type) {
         this.type = type;
     }
 

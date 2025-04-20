@@ -30,10 +30,10 @@ public class SurveyService {
         for (QuestionRequest qr : request.getQuestions()) {
             Question question = new Question();
             question.setText(qr.getText());
-            question.setType(qr.getType());
+            question.setType(QuestionType.valueOf(qr.getType()));
 
             // Only set options if it's an MCQ
-            if (qr.getType() == QuestionType.MCQ) {
+            if (qr.getType().equals(QuestionType.MCQ.name())) {
                 question.setOptions(qr.getOptions());
             }
 
